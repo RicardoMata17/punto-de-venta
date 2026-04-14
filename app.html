@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema | CAMY</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="logo_Camy_sinfondo.png" class="top-logo" alt="CAMY">
+      <div class="topbar-title">
+        <strong id="topTitle">Inicio</strong>
+        <span id="topSubtitle" class="muted small">Selecciona una opción</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <span id="whoami" class="tag">Vendedor</span>
+      <button id="logoutBtn" class="btn ghost">Salir</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ================= INICIO ================= -->
+    <section id="view-home" class="view active">
+      <h2 class="page-title">¿Qué deseas hacer?</h2>
+
+      <div class="menu-grid">
+        <button id="go-sale" class="menu-card" type="button">
+          <div class="menu-icon">🧾</div>
+          <div class="menu-text">
+            <strong>Generar venta</strong>
+            <span class="muted small">Selecciona cliente y productos.</span>
+          </div>
+        </button>
+
+        <button id="go-accounts" class="menu-card" type="button">
+          <div class="menu-icon">📌</div>
+          <div class="menu-text">
+            <strong>Revisar cuentas pendientes</strong>
+            <span class="muted small">Busca por cliente o Nº factura.</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- CARGA CSV -->
+      <article class="card" style="margin-top:16px;">
+        <h3 style="margin:0 0 10px;">Cargar datos de prueba (Excel → CSV/TSV)</h3>
+
+        <label class="full">
+          Clientes (clientes.csv)
+          <input type="file" id="loadClients" class="input" accept=".csv,.txt">
+        </label>
+
+        <label class="full" style="margin-top:10px;">
+          Productos (productos.csv)
+          <input type="file" id="loadProducts" class="input" accept=".csv,.txt">
+        </label>
+
+        <p class="muted small" style="margin-top:8px;">
+          Se usan solo para pruebas en este navegador.
+        </p>
+      </article>
+    </section>
+
+    <!-- ================= GENERAR VENTA ================= -->
+    <section id="view-sale" class="view">
+
+      <div class="view-head">
+        <button id="back-home-1" class="btn ghost" type="button">← Inicio</button>
+
+        <div class="stepper">
+          <span class="step active" data-step="1">1 Cliente</span>
+          <span class="step" data-step="2">2 Productos</span>
+          <span class="step" data-step="3">3 Confirmar</span>
+        </div>
+      </div>
+
+      <!-- PASO 1: Cliente -->
+      <article class="card sale-step" data-step="1">
+        <div class="card-head">
+          <h2>Paso 1 · Seleccionar cliente</h2>
+          <span class="chip">Requerido</span>
+        </div>
+
+        <input id="customerSearch" class="input" placeholder="Buscar por ID o nombre…">
+        <div id="customerResults" class="list"></div>
+
+        <div id="customerSelected" class="selected" hidden>
+          <div class="row">
+            <div>
+              <strong id="selectedCustomerName"></strong>
+              <div class="muted small">ID: <span id="selectedCustomerId"></span></div>
+            </div>
+            <div class="chip">
+              Saldo: <strong id="selectedCustomerBalance">$0.00</strong>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <button id="clearCustomer" class="btn ghost" type="button">Cambiar cliente</button>
+            <button id="to-step-2" class="btn primary" type="button">Continuar →</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- PASO 2: Productos + carrito -->
+      <article class="card sale-step" data-step="2" hidden>
+        <div class="sale-grid">
+
+          <!-- Productos -->
+          <div>
+            <div class="card-head">
+              <h2>Paso 2 · Agregar productos</h2>
+              <span class="chip">Stock</span>
+            </div>
+
+            <input id="productSearch" class="input" placeholder="Buscar código, nombre o palabra…">
+
+            <div class="product-scroll">
+              <div id="productResults" class="list"></div>
+            </div>
+          </div>
+
+          <!-- Carrito -->
+          <div class="cart-sticky">
+            <h3>Carrito</h3>
+            <p id="cartCustomer" class="muted small"></p>
+
+            <div id="cartList" class="cart"></div>
+
+            <div class="row total">
+              <span>Total</span>
+              <strong id="cartTotal">$0.00</strong>
+            </div>
+
+            <button id="to-step-3" class="btn primary full" type="button" style="margin-top:10px;">
+              Continuar →
+            </button>
+
+            <p id="cartHint" class="muted small"></p>
+          </div>
+
+        </div>
+      </article>
+
+      <!-- PASO 3: Confirmar (SIN abonos) -->
+      <article class="card sale-step" data-step="3" hidden>
+        <div class="card-head">
+          <h2>Paso 3 · Confirmar venta</h2>
+          <span class="chip">Factura</span>
+        </div>
+
+        <div class="sale-summary">
+          <div class="row">
+            <span class="muted">Cliente</span>
+            <strong id="payCustomer">—</strong>
+          </div>
+          <div class="row">
+            <span class="muted">Nº Factura</span>
+            <strong id="payFolio">—</strong>
+          </div>
+          <div class="row">
+            <span class="muted">Importe</span>
+            <strong id="payTotal">$0.00</strong>
+          </div>
+          <div class="row">
+            <span class="muted">Cobrado</span>
+            <strong id="payPaid">$0.00</strong>
+          </div>
+          <div class="row">
+            <span class="muted">Pendiente</span>
+            <strong id="payPending">$0.00</strong>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button id="back-step-2" class="btn ghost" type="button">← Productos</button>
+          <button id="finishSale" class="btn primary" type="button">Generar venta</button>
+        </div>
+
+        <p id="saleToast" class="muted small" style="margin-top:10px;"></p>
+      </article>
+
+    </section>
+
+    <!-- ================= CUENTAS ================= -->
+    <section id="view-accounts" class="view">
+
+      <div class="view-head">
+        <button id="back-home-2" class="btn ghost" type="button">← Inicio</button>
+
+        <div class="filters">
+          <button class="btn filter active" data-filter="TODAS" type="button">Todas</button>
+          <button class="btn filter" data-filter="PENDIENTES" type="button">Pendientes</button>
+          <button class="btn filter" data-filter="PAGADAS" type="button">Pagadas</button>
+        </div>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Buscar</h2>
+          <span class="chip">Nº factura / ID / nombre</span>
+        </div>
+
+        <input id="accCustomerSearch" class="input" placeholder="Ej: 1-601256 o 000024 o ALFREDO…">
+        <div id="accCustomerResults" class="list"></div>
+      </article>
+
+      <article id="accDetail" class="card" hidden>
+        <div class="row">
+          <div>
+            <h3 id="accTitle" style="margin:0;"></h3>
+            <p id="accSubtitle" class="muted small" style="margin:4px 0 0;"></p>
+          </div>
+          <div class="chip">
+            Saldo total: <strong id="accBalance">$0.00</strong>
+          </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="table-wrap">
+          <table class="accounts-table">
+            <thead>
+              <tr>
+                <th>Nº FACTURA</th>
+                <th>FECHA</th>
+                <th>CLIENTE</th>
+                <th>AGENTE</th>
+                <th>ESTADO</th>
+                <th>PRIMER COBRO</th>
+                <th class="right">IMPORTE</th>
+                <th class="right">COBRADO</th>
+                <th class="right">PENDIENTE</th>
+              </tr>
+            </thead>
+            <tbody id="accSales"></tbody>
+          </table>
+        </div>
+      </article>
+
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
